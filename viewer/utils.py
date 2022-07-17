@@ -105,7 +105,8 @@ El template espera un contexto de este tipo:
 }
 """
     context = {}
-    print("CONTEXT: getting context data")
+    #print("CONTEXT: getting context data")
+    
     try:
         userParam = request.user.username
         cityParam = request.GET.get("city", None)
