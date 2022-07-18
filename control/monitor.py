@@ -1,4 +1,5 @@
 from argparse import ArgumentError
+from operator import length_hint
 import ssl
 from django.db.models import Avg
 from datetime import timedelta, datetime
@@ -71,13 +72,13 @@ def analyze_data_reto():
     print("Calculando alertas reto...")
 
     data = Data.objects.filter(
-        base_time__gte=datetime.now() - timedelta(minutes=10))
-    aggregation = data.annotate(check_value=Avg('max_value')) \
+        base_time__gte=datetime.now() - timedelta(hours=1))
+    aggregation = data.annotate(check_value=Avg('max_value'), length_value='lenght') \
         .select_related('station', 'measurement') \
         .select_related('station__user', 'station__location') \
         .select_related('station__location__city', 'station__location__state',
                         'station__location__country') \
-        .values('check_value', 'station__user__username',
+        .values('check_value', 'length_value','station__user__username',
                 'measurement__name',
                 'measurement__max_value',
                 'measurement__min_value',
@@ -100,8 +101,9 @@ def analyze_data_reto():
         print(item["check_value"], "Check value")
         print(max_value, "Max value")
         print(min_value, "Min value")
+        print(item["length_value"], "Length value")
 
-        if item["check_value"] > max_value or item["check_value"] < min_value :
+        if item["check_value"] > max_value or item["check_value"] < min_value and item["length_value"] > 300:
             alert = True
 
         if alert:
