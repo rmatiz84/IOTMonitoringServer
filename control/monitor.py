@@ -86,8 +86,11 @@ def analyze_data_reto():
                 'station__location__state__name',
                 'station__location__country__name')
     alerts = 0
+    varTemperatura = False
+    varHumedad = False
+    varLuminosidad = False
+
     for item in aggregation:
-        alert = False
 
         variable = item["measurement__name"]
         max_value = item["measurement__max_value"] or 0
@@ -103,15 +106,29 @@ def analyze_data_reto():
         print(min_value, "Min value")
 
         if item["check_value"] > max_value or item["check_value"] < min_value :
-            alert = True
+            if variable == 'temperatura' :
+                varTemperatura = True
+            elif variable == 'humedad' :
+                varHumedad = True
+            else:
+                varLuminosidad = True
+           
 
-        if alert:
-            message = "ALERT RETO {} ".format(variable)
-            print(message, "Mensaje de alerta reto")
-            topic = '{}/{}/{}/{}/in'.format(country, state, city, user)
-            print(datetime.now(), "Sending alert to {} {}".format(topic, variable))
-            client.publish(topic, message)
-            alerts += 1
+    if varLuminosidad & varTemperatura :
+        message = "ALERT TEMP-LUMEN"
+        print(message, "Mensaje de alerta reto")
+        topic = '{}/{}/{}/{}/in'.format(country, state, city, user)
+        print(datetime.now(), "Sending alert to {} {}".format(topic, 'temperatura'))
+        client.publish(topic, message)
+        alerts += 1
+    if varHumedad :
+        message = "ALERT HUMEDAD"
+        print(message, "Mensaje de alerta reto")
+        topic = '{}/{}/{}/{}/in'.format(country, state, city, user)
+        print(datetime.now(), "Sending alert to {} {}".format(topic, 'humedad'))
+        client.publish(topic, message)
+        alerts += 1
+
 
     print(len(aggregation), "dispositivos revisados reto")
     print(alerts, "alertas enviadas reto")
