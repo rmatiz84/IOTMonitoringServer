@@ -72,7 +72,7 @@ def analyze_data_reto():
 
     data = Data.objects.filter(
         base_time__gte=datetime.now() - timedelta(hours=2))
-    aggregation = data.annotate(check_value=Avg('avg_value'), length_value='lenght') \
+    aggregation = data.annotate(check_value=Avg('avg_value')) \
         .select_related('station', 'measurement') \
         .select_related('station__user', 'station__location') \
         .select_related('station__location__city', 'station__location__state',
@@ -100,9 +100,8 @@ def analyze_data_reto():
         print(item["check_value"], "Check value")
         print(max_value, "Max value")
         print(min_value, "Min value")
-        print(item["length_value"], "length value")
 
-        if item["check_value"] > max_value or item["check_value"] < min_value and item["length_value"] > 10:
+        if item["check_value"] > max_value or item["check_value"] < min_value :
             alert = True
 
         if alert:
